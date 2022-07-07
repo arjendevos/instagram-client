@@ -1,16 +1,19 @@
 package helpers
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
 
 func GetEmailProviders() []string {
 	return []string{
-		"google",
+		"gmail",
 		"yahoo",
 		"icloud",
 		"hotmail",
@@ -34,10 +37,11 @@ func GetEnvArray(key string) []string {
 	return strings.Split(env, ",")
 }
 
-func Handle(err error) {
+func HandleError(err error, cb func()) {
 	if err != nil {
 		log.Err(err).Send()
-		panic(err)
+		Wait(60)
+		cb()
 	}
 }
 
@@ -48,15 +52,37 @@ func ExtractEmails(text string) []string {
 }
 
 func FindPrimaryEmail(emails []string) (email string, provider string) {
-	providers := GetEmailProviders()
+	if len(emails) > 0 {
+		providers := GetEmailProviders()
 
-	for _, e := range emails {
-		for _, p := range providers {
-			if strings.Contains(e, p) {
-				return e, p
+		for _, e := range emails {
+			for _, p := range providers {
+				if strings.Contains(e, p) {
+					return e, p
+				}
 			}
 		}
+
+		return emails[0], ""
 	}
 
 	return "", ""
+}
+
+func WriteToFile(data any, file string) error {
+	f, err := json.MarshalIndent(data, "", " ")
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(file, f, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Wait(seconds time.Duration) {
+	time.Sleep(seconds * time.Second)
 }

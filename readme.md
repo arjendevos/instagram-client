@@ -12,6 +12,7 @@ Instagram Client uses the instagram web api endpoints to make requests.
 - [ ] Login with username + password (if possible)
 - [ ] Create web dashboard to view data (next)
 - [ ] Make API endpoints
+- [ ] Find out language (last 3 posts)
 - [ ] More stuff
 
 ## Setup

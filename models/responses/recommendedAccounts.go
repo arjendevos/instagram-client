@@ -3,7 +3,7 @@ package responses
 type RecommendedAccountsResponse struct {
 	IsRecommendAccount bool   `json:"is_recommend_account"`
 	Status             string `json:"status"`
-	Users              struct {
+	Users              []*struct {
 		Pk                 int64  `json:"pk"`
 		Username           string `json:"username"`
 		FullName           string `json:"full_name"`

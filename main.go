@@ -1,62 +1,50 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
 	"flag"
-	"io/ioutil"
-	"os"
 
 	c "github.com/arjendevos/instagram-client/client"
+	"github.com/arjendevos/instagram-client/database"
+	"github.com/arjendevos/instagram-client/helpers"
 	h "github.com/arjendevos/instagram-client/helpers"
-	"github.com/joho/godotenv"
+	"github.com/arjendevos/instagram-client/instagram"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	"github.com/joho/godotenv"
 )
 
 func init() {
 	godotenv.Load()
-
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	h.ConfigureLogger()
 }
 
 func main() {
 	usernamePtr := flag.String("username", "", "An username of the account you want to start from")
 	flag.Parse()
 	if usernamePtr == nil || *usernamePtr == "" {
-		h.Handle(errors.New("username is empty"))
+		panic(errors.New("username is empty"))
 	}
 
 	client := c.NewClient()
+	ctx := context.Background()
+	db, err := database.StartDB()
+	helpers.HandleError(err, main)
 
-	profile, err := client.GetProfile(*usernamePtr)
-	h.Handle(err)
+	instagram := instagram.NewInstagram(ctx, db)
 
-	// // resp, err := client.GetRecommendedAccounts(profile.Data.User.ID)
-	// // h.Handle(err)
+	startProfile, err := client.GetProfile(*usernamePtr)
+	helpers.HandleError(err, main)
 
-	// // err = WriteToFile(resp.Users, "users.json")
-	// // h.Handle(err)
+	recommendedAccounts, err := client.GetRecommendedAccounts(startProfile.Data.User.ID)
+	helpers.HandleError(err, main)
 
-	err = WriteToFile(h.ConvertProfile(profile), "profile.json")
-	h.Handle(err)
-
-	// api.Start()
-
-}
-
-func WriteToFile(data any, file string) error {
-	f, err := json.MarshalIndent(data, "", " ")
-	if err != nil {
-		return err
+	for _, account := range recommendedAccounts.Users {
+		p, err := client.GetProfile(account.Username)
+		helpers.HandleError(err, main)
+		instagram.Insert(p)
+		helpers.Wait(15)
 	}
 
-	err = ioutil.WriteFile(file, f, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	// api.Start(db)
 }
