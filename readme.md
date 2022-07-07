@@ -8,7 +8,7 @@ Instagram Client uses the instagram web api endpoints to make requests.
 - [x] Fetch profile with username
 - [x] Fetch recommended accounts from account
 - [x] Convert and save data to json file
-- [ ] Save data to database (postgresql)
+- [x] Save data to database (postgresql)
 - [ ] Login with username + password (if possible)
 - [ ] Create web dashboard to view data (next)
 - [ ] Make API endpoints
