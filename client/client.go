@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	h "github.com/arjendevos/instagram-client/helpers"
+	"github.com/rs/zerolog/log"
 )
 
 type Client struct {
@@ -26,7 +27,8 @@ func (c *Client) createUrl(path string) string {
 func (c *Client) get(path string) (*http.Response, error) {
 	client := http.Client{}
 	url := c.createUrl(path)
-	fmt.Printf("GET %v\n", url)
+	log.Info().Msg(fmt.Sprintf("GET %v", url))
+	// fmt.Printf("GET %v\n", url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
