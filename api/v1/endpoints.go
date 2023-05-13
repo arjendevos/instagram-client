@@ -47,24 +47,30 @@ func (e *Endpoints) GetProfiles(c *fiber.Ctx) error {
 
 	mods, err := CursorPagination(cursor, "instagram_id")
 	if err != nil {
-		return c.Status(400).JSON(&fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return HandleErr(c, err, 400)
 	}
 	mods = append(mods, qm.Limit(limit))
 	accounts, err := dm.InstagramAccounts(mods...).All(e.ctx, e.db)
 	if err != nil {
-		return c.Status(404).JSON(&fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return HandleErr(c, err, 404)
+	}
+
+	p := ""
+	n := ""
+
+	if len(cursor) > 0 {
+		p = "p_" + accounts[0].InstagramID
+	}
+
+	if len(accounts) == limit {
+		n = "n_" + accounts[limit-1].InstagramID
+
 	}
 
 	return c.JSON(&fiber.Map{
 		"success":    true,
 		"accounts":   accounts[:limit-1],
-		"pagination": PaginationResponse(len(cursor) > 0, len(accounts) == limit, accounts[0].InstagramID, accounts[limit-1].InstagramID),
+		"pagination": PaginationResponse(p, n),
 	})
 }
 

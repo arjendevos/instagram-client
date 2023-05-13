@@ -18,5 +18,5 @@ Instagram Client uses the instagram web api endpoints to make requests.
 ## Setup
 
 1. Extract the `cookie` + `x-ig-app-id` from a web request on [instagram-web](https://instagram.com)
-2. Copy .env.example, rename to .env and add `cookie` + `x-ig-app-id`
+2. Copy .env.example, rename to .env and add `cookie` + `x-iprofig-app-id`
 3. Run it with `go run main.go -username=yourusername`

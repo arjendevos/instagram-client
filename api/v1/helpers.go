@@ -41,22 +41,16 @@ func decodeCursor(cursor string) (fv string, p string, err error) {
 	return s[1], s[0], nil
 }
 
-func PaginationResponse(hasPrev bool, hasNext bool, p string, n string) *fiber.Map {
-	pc := ""
-	nc := ""
-
-	if hasPrev {
-		pc =
-			base64.StdEncoding.EncodeToString([]byte("p_" + p))
-	}
-
-	if hasNext {
-		nc = base64.StdEncoding.EncodeToString([]byte("n_" + n))
-
-	}
-
+func PaginationResponse(p string, n string) *fiber.Map {
 	return &fiber.Map{
-		"previous_cursor": pc,
-		"next_cursor":     nc,
+		"previous_cursor": base64.StdEncoding.EncodeToString([]byte(p)),
+		"next_cursor":     base64.StdEncoding.EncodeToString([]byte(n)),
 	}
+}
+
+func HandleErr(c *fiber.Ctx, err error, sc int) error {
+	return c.Status(400).JSON(&fiber.Map{
+		"success": false,
+		"error":   err.Error(),
+	})
 }
